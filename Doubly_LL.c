@@ -7,6 +7,7 @@ typedef struct Node {
     struct Node* prev;
     struct Node* next;
 } Node;
+
 Node* create_node(const char* url) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     strcpy(newNode->url, url);
@@ -14,7 +15,9 @@ Node* create_node(const char* url) {
     newNode->next = NULL;
     return newNode;
 }
+
 void visit(Node** curr, const char* url) {
+    // Remove possible forward nodes
     Node* temp = (*curr)->next;
     while (temp) {
         Node* toFree = temp;
@@ -22,11 +25,13 @@ void visit(Node** curr, const char* url) {
         free(toFree);
     }
     (*curr)->next = NULL;
+
     Node* newNode = create_node(url);
     newNode->prev = *curr;
     (*curr)->next = newNode;
     *curr = newNode;
 }
+
 void back(Node** curr) {
     if ((*curr)->prev) {
         *curr = (*curr)->prev;
@@ -37,6 +42,7 @@ void back(Node** curr) {
 ");
     }
 }
+
 void forward(Node** curr) {
     if ((*curr)->next) {
         *curr = (*curr)->next;
@@ -47,16 +53,21 @@ void forward(Node** curr) {
 ");
     }
 }
+
 int main() {
     Node* homepage = create_node("home.com");
     Node* curr = homepage;
-    visit(&curr, "a.com");   
-    visit(&curr, "b.com"); 
-    visit(&curr, "c.com");    
-    back(&curr);  
-    back(&curr);   
-    forward(&curr); 
-    visit(&curr, "d.com"); 
-    forward(&curr); 
+
+    visit(&curr, "a.com");    // Visit a.com
+    visit(&curr, "b.com");    // Visit b.com
+    visit(&curr, "c.com");    // Visit c.com
+    
+    back(&curr);   // Go to b.com
+    back(&curr);   // Go to a.com
+    forward(&curr); // Go to b.com
+
+    visit(&curr, "d.com");  // Visit d.com, forward history deleted
+    forward(&curr);         // No forward history
+
     return 0;
 }
